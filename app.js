@@ -7,11 +7,12 @@ import testRoute from "./routes/test.route.js";
 import userRoute from "./routes/user.route.js";
 import chatRoute from "./routes/chat.route.js";
 import messageRoute from "./routes/message.route.js";
-
+import { configDotenv } from "dotenv";
 const app = express();
 app.use(cors({ origin: "https://estate-emm.vercel.app", credentials: true }));
+// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
-
+configDotenv();
 app.use(express.json());
 app.use(cookieParser());
 
@@ -24,4 +25,5 @@ app.use("/api/messages", messageRoute);
 
 app.listen(8800, () => {
   console.log("Server is running!");
+
 });
