@@ -22,19 +22,17 @@ const getUser = (userId) => {
 export const initSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: (origin, callback) => {
-        callback(null, origin); 
-      },
-      credentials: true,
+      origin: "https://estate-emm.vercel.app", 
+      credentials: true,                       
     },
   });
 
   io.on("connection", (socket) => {
-    console.log(" Socket connected:", socket.id);
+    console.log("Socket connected:", socket.id);
 
     socket.on("newUser", (userId) => {
       addUser(userId, socket.id);
-      console.log("Online users:", onlineUsers);
+      console.log("👥 Online users:", onlineUsers);
     });
 
     socket.on("sendMessage", ({ receiverId, data }) => {
