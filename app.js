@@ -17,12 +17,11 @@ configDotenv();
 const app = express();
 const server = http.createServer(app);
 
-// ✅ Normalize client URL
-const CLIENT_URL = process.env.CLIENT_URL?.replace(/\/+$/, "");
-
 app.use(cors({
-  origin: CLIENT_URL,
-  credentials: true, 
+  origin: (origin, callback) => {
+    callback(null, origin); 
+  },
+  credentials: true,
 }));
 
 app.use(express.json());
@@ -36,10 +35,8 @@ app.use("/api/test", testRoute);
 app.use("/api/chats", chatRoute);
 app.use("/api/messages", messageRoute);
 
-// ✅ Init WebSocket
 initSocket(server);
 
-// Start server
 const PORT = process.env.PORT || 8800;
 server.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
