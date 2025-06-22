@@ -16,16 +16,15 @@ configDotenv();
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = [
-  "https://estate-emm.vercel.app",
-  "https://estate-emm.vercel.app/"
-];
+const CLIENT_URL = process.env.CLIENT_URL?.replace(/\/+$/, "");
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    const cleaned = origin?.replace(/\/+$/, "");
+    if (!origin || cleaned === CLIENT_URL) {
       callback(null, true);
     } else {
+      console.log("Blocked CORS:", origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
@@ -42,9 +41,9 @@ app.use("/api/test", testRoute);
 app.use("/api/chats", chatRoute);
 app.use("/api/messages", messageRoute);
 
+initSocket(server);
+
 const PORT = process.env.PORT || 8800;
 server.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(` Server running on http://localhost:${PORT}`);
 });
-
-initSocket(server);

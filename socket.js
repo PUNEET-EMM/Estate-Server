@@ -1,4 +1,8 @@
 import { Server } from "socket.io";
+import { configDotenv } from "dotenv";
+
+configDotenv();
+const CLIENT_URL = process.env.CLIENT_URL?.replace(/\/+$/, "");
 
 let onlineUsers = [];
 
@@ -19,20 +23,26 @@ const getUser = (userId) => {
 export const initSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: [
-        "https://estate-emm.vercel.app",
-        "https://estate-emm.vercel.app/"
-      ],
+      origin: (origin, callback) => {
+        const cleaned = origin?.replace(/\/+$/, "");
+        if (!origin || cleaned === CLIENT_URL) {
+          callback(null, true);
+        } else {
+          console.log("Socket CORS blocked:", origin);
+          callback(new Error("Socket CORS error"));
+        }
+      },
       credentials: true,
     },
+    path: "/socket.io", 
   });
 
   io.on("connection", (socket) => {
-    console.log("🔌 New socket connected:", socket.id);
+    console.log("Socket connected:", socket.id);
 
     socket.on("newUser", (userId) => {
       addUser(userId, socket.id);
-      console.log("🟢 Online users:", onlineUsers);
+      console.log("Online users:", onlineUsers);
     });
 
     socket.on("sendMessage", ({ receiverId, data }) => {
@@ -44,7 +54,7 @@ export const initSocket = (server) => {
 
     socket.on("disconnect", () => {
       removeUser(socket.id);
-      console.log("🔌 Socket disconnected:", socket.id);
+      console.log("Socket disconnected:", socket.id);
     });
   });
 };
