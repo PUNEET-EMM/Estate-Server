@@ -18,16 +18,13 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: (origin, callback) => {
-    callback(null, origin); 
-  },
-  credentials: true,
+  origin: "https://estate-emm.vercel.app", 
+  credentials: true,                        
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
