@@ -3,21 +3,35 @@ import http from "http";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { configDotenv } from "dotenv";
-
 import authRoute from "./routes/auth.route.js";
 import postRoute from "./routes/post.route.js";
 import testRoute from "./routes/test.route.js";
 import userRoute from "./routes/user.route.js";
 import chatRoute from "./routes/chat.route.js";
 import messageRoute from "./routes/message.route.js";
-import { initSocket } from "./socket.js"; 
+import { initSocket } from "./socket.js";
 
 configDotenv();
 
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+const allowedOrigins = [
+  "https://estate-emm.vercel.app",
+  "https://estate-emm.vercel.app/"
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -30,7 +44,7 @@ app.use("/api/messages", messageRoute);
 
 const PORT = process.env.PORT || 8800;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
 
-initSocket(server); 
+initSocket(server);

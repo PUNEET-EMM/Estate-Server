@@ -3,8 +3,9 @@ import { Server } from "socket.io";
 let onlineUsers = [];
 
 const addUser = (userId, socketId) => {
-  const exists = onlineUsers.find((u) => u.userId === userId);
-  if (!exists) onlineUsers.push({ userId, socketId });
+  if (!onlineUsers.some((u) => u.userId === userId)) {
+    onlineUsers.push({ userId, socketId });
+  }
 };
 
 const removeUser = (socketId) => {
@@ -18,17 +19,20 @@ const getUser = (userId) => {
 export const initSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL,
+      origin: [
+        "https://estate-emm.vercel.app",
+        "https://estate-emm.vercel.app/"
+      ],
       credentials: true,
     },
   });
 
   io.on("connection", (socket) => {
-    console.log("New socket connected:", socket.id);
+    console.log("🔌 New socket connected:", socket.id);
 
     socket.on("newUser", (userId) => {
       addUser(userId, socket.id);
-      console.log("Online users:", onlineUsers);
+      console.log("🟢 Online users:", onlineUsers);
     });
 
     socket.on("sendMessage", ({ receiverId, data }) => {
@@ -40,7 +44,7 @@ export const initSocket = (server) => {
 
     socket.on("disconnect", () => {
       removeUser(socket.id);
-      console.log(" Socket disconnected:", socket.id);
+      console.log("🔌 Socket disconnected:", socket.id);
     });
   });
 };
